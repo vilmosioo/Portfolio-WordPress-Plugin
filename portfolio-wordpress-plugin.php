@@ -1,14 +1,14 @@
 <?php
 /*
-Plugin Name: WP Portfolio
-Plugin URI: https://github.com/vilmosioo/WP-Portfolio
-Description: TODO 
+Plugin Name: Portfolio WordPress Plugin
+Plugin URI: https://github.com/vilmosioo/Portfolio-WordPress-Plugin
+Description: A WordPress plugin that creates a portfolio and testimonial custom posts to handle and display a work portfolio 
 Version: 0.0.1
 Author: Vilmos Ioo
 Author URI: http://vilmosioo.co.uk
 License: GPL2
 
-	Copyright 2014 TODO  (email : TODO)
+	Copyright 2014 Vilmos Ioo
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License, version 2, as 
@@ -26,20 +26,20 @@ License: GPL2
 */
 
 // Define constants
-define('WP_PORTFOLIO_PLUGIN_DIR', plugin_dir_path(__FILE__));
-define('WP_PORTFOLIO_PLUGIN_URL', plugin_dir_url(__FILE__));
-define('WP_PORTFOLIO_PLUGIN_WORDPRESS_VERSION', get_bloginfo( 'version' ));
+define('VI_PORTFOLIO_PLUGIN_DIR', plugin_dir_path(__FILE__));
+define('VI_PORTFOLIO_PLUGIN_URL', plugin_dir_url(__FILE__));
+define('VI_PORTFOLIO_PLUGIN_WORDPRESS_VERSION', get_bloginfo( 'version' ));
 
 // Includes
-// require_once(WP_PORTFOLIO_PLUGIN_DIR.'bower_components/wordpress-tools-.php');
+require_once(VI_PORTFOLIO_PLUGIN_DIR.'inc/VI_Portfolio_Custom_Post.php');
 
-class WPPortfolio_Plugin {
+class VI_Portfolio_Plugin {
 	
 	static function init(){
-		return new WPPortfolio_Plugin();
+		return new VI_Portfolio_Plugin();
 	}
 
-	const ID = 'WP_PORTFOLIO';
+	const ID = 'VI_PORTFOLIO';
 
 	/**
 	 * Initializes the plugin by setting localization, filters, and administration functions.
@@ -48,8 +48,13 @@ class WPPortfolio_Plugin {
 		register_activation_hook(__FILE__, array( &$this, 'activate' ) );
 		register_deactivation_hook(__FILE__, array( &$this, 'deactivate' ) );
 		
-		// TODO write more functionality here
+		add_action('init', array(&$this, 'register_posts'));
 	} 
+
+	public function register_posts(){
+		VI_Portfolio_Custom_Post::create(array('name' => 'Portfolio item'));
+		VI_Portfolio_Custom_Post::create(array('name' => 'Testimonial'));
+	}
 
 	/**
 	 * Fired when the plugin is activated.
@@ -71,5 +76,5 @@ class WPPortfolio_Plugin {
 
 } // end class
 
-$GLOBALS['WPPortfolio_Plugin'] = WPPortfolio_Plugin::init();
+$GLOBALS['VI_Portfolio_Plugin'] = VI_Portfolio_Plugin::init();
 ?>
