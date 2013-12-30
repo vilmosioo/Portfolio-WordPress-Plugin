@@ -63,7 +63,27 @@ class VI_Portfolio_Custom_Post{
 		register_post_type( $this->slug, $args );
 		
 		add_action( 'right_now_content_table_end' , array(&$this, 'add_to_dashboard') );
+		
+		// WP 3.8 hack
+		add_filter('dashboard_glance_items', array(&$this, 'add_to_dashboard_hack'));
+	}
 
+	public function add_to_dashboard_hack($elements) {
+		$post_type = get_post_type_object($this->slug);
+		$num_posts = wp_count_posts( $post_type->name );
+		$num = number_format_i18n( $num_posts->publish );
+		if(intval($num) == 1){
+			$text = _n( $post_type->labels->singular_name, $post_type->labels->name , intval( $num_posts->publish ) );
+		} else {
+			$text = _n( Web_Demos_Utils::pluralize($post_type->labels->singular_name), Web_Demos_Utils::pluralize($post_type->labels->name) , intval( $num_posts->publish ) );
+		}
+
+		if ( current_user_can( 'edit_posts' ) ) {
+			$text = "<a href='edit.php?post_type=$post_type->name'>$num $text</a>";
+			echo '<li class="post-count">' . $text . '</li>';
+		}
+
+	  return $elements;
 	}
 
 	public function add_to_dashboard(){

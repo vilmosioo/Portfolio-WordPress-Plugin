@@ -49,12 +49,25 @@ class VI_Portfolio_Plugin {
 		register_deactivation_hook(__FILE__, array( &$this, 'deactivate' ) );
 		
 		add_action('init', array(&$this, 'register_posts'));
+		add_action('wp_enqueue_scripts', array( &$this, 'add_scripts_and_styles') );
 	} 
 
 	public function register_posts(){
 		VI_Portfolio_Custom_Post::create(array('name' => 'Portfolio item'));
 		VI_Portfolio_Custom_Post::create(array('name' => 'Testimonial'));
 	}
+
+	// add flexi slider scripts and styles
+	function add_scripts_and_styles(){
+		wp_register_script( 'vi-portfolio-flex', plugins_url('js/jquery.flexslider-min.js', __FILE__), array( 'jquery' ), '1.8', true ); 
+		wp_register_style( 'vi-portfolio-flex', plugins_url('css/flexslider.css', __FILE__), array(), '1.8' );
+		
+		if(is_front_page()){ 
+			wp_enqueue_script( 'vi-portfolio-flex' ); 
+			wp_enqueue_style( 'vi-portfolio-flex' ); 
+		}
+	}
+
 
 	/**
 	 * Fired when the plugin is activated.
