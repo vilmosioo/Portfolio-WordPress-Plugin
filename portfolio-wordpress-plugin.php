@@ -7,6 +7,7 @@ Version: 0.0.1
 Author: Vilmos Ioo
 Author URI: http://vilmosioo.co.uk
 License: GPL2
+Requires at least: 3.3
 
 	Copyright 2014 Vilmos Ioo
 
@@ -50,7 +51,41 @@ class VI_Portfolio_Plugin {
 		
 		add_action('init', array(&$this, 'register_posts'));
 		add_action('wp_enqueue_scripts', array( &$this, 'add_scripts_and_styles') );
+		add_shortcode('portfolio-slider', array( &$this, 'display_portfolio_slider' ));
 	} 
+
+	public function display_portfolio_slider($atts){
+		extract(shortcode_atts(array('class' => 'flexslider', 'image_size' => 'medium', 'animation' => 'fade', 'controlsContainer' => ".$class-container", 'directionNav' => false, 'animationDuration' => 1200), $atts));
+
+		wp_enqueue_script( 'vi-portfolio-flex' ); 
+		wp_enqueue_script( 'vi-portfolio-script' ); 
+		wp_enqueue_style( 'vi-portfolio-flex' );
+
+		$s = "<div class='$class-container clearfix'>";
+		$s .=	"<div class='$class'>";
+		$s .=	"<ul class='slides'>";
+		
+		$the_query = new WP_Query( array( 'post_type' => 'portfolio-item', 'posts_per_page' => -1 ) );
+		while ( $the_query->have_posts() ) : $the_query->the_post();
+			$img = wp_get_attachment_image_src( get_post_thumbnail_id(), $image_size );
+			$img = $img[0];
+			if(!empty($img)) $s .= "<li><img src='$img' /></li>";
+		endwhile;
+		wp_reset_postdata();
+
+		wp_localize_script('vi-portfolio-script', 'PORTFOLIO_SLIDER_DATA', array(
+			'sliderClass' => $class,
+			'options' => array(
+				'animation' => $animation,
+				'controlsContainer' => ".$class-container",
+				'directionNav' => $directionNav,
+				'animationDuration' => $animationDuration
+			)
+		));
+
+		$s .= "</ul></div></div>";
+		return $s;
+	}
 
 	public function register_posts(){
 		VI_Portfolio_Custom_Post::create(array('name' => 'Portfolio item'));
@@ -58,16 +93,11 @@ class VI_Portfolio_Plugin {
 	}
 
 	// add flexi slider scripts and styles
-	function add_scripts_and_styles(){
+	public function add_scripts_and_styles(){
 		wp_register_script( 'vi-portfolio-flex', plugins_url('js/jquery.flexslider-min.js', __FILE__), array( 'jquery' ), '1.8', true ); 
+		wp_register_script( 'vi-portfolio-script', plugins_url('js/script.js', __FILE__), array( 'vi-portfolio-flex' ), '0.0.1', true ); 
 		wp_register_style( 'vi-portfolio-flex', plugins_url('css/flexslider.css', __FILE__), array(), '1.8' );
-		
-		if(is_front_page()){ 
-			wp_enqueue_script( 'vi-portfolio-flex' ); 
-			wp_enqueue_style( 'vi-portfolio-flex' ); 
-		}
 	}
-
 
 	/**
 	 * Fired when the plugin is activated.
