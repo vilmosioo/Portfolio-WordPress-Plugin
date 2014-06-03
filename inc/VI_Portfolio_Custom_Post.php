@@ -75,7 +75,7 @@ class VI_Portfolio_Custom_Post{
 		if(intval($num) == 1){
 			$text = _n( $post_type->labels->singular_name, $post_type->labels->name , intval( $num_posts->publish ) );
 		} else {
-			$text = _n( Web_Demos_Utils::pluralize($post_type->labels->singular_name), Web_Demos_Utils::pluralize($post_type->labels->name) , intval( $num_posts->publish ) );
+			$text = _n( VI_Portfolio_Utils::pluralize($post_type->labels->singular_name), VI_Portfolio_Utils::pluralize($post_type->labels->name) , intval( $num_posts->publish ) );
 		}
 
 		if ( current_user_can( 'edit_posts' ) ) {
